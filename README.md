@@ -1,24 +1,14 @@
-## Obsidian Sample Plugin (Yomaru)
+## Obsidian custom save
 
-- ✅ husky
-- ✅ bun
-- ✅ bun github release workflow
-- ✅ extended obsidian typescript api
+This plugin created a custom save command that allow you add different callback to this save command.
 
-## How to start?
+✅ Powerful, dead simple
 
-you can click the "use this template" button on Github. Or clone it yourself:
+> [!NOTE]
+> This plugin is so simple that it probably doesn't need any documentation
 
-1. git clone this project
-2. remove the remote origin: `git remote remove origin`
-3. remove the tag : `git tag -d <tag_name>`
+## Give Thanks
 
-Then change the basic info in your plugin. Open your vault and you should see the info has been updated.
+If you are enjoying this plugin then please support my work and enthusiasm by sponsoring me on Github or buying me a coffee on <https://www.buymeacoffee.com/yomaru>.
 
-### Prerequisite
-
-you need to install `bun` in your system to use this template.
-
-## How to release?
-
-run `bun release`
+<a href="https://www.buymeacoffee.com/yomaru" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 105px !important;" ></a> [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/hananoshikayomaru)

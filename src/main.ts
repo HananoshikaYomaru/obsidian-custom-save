@@ -1,31 +1,22 @@
 import {
 	App,
 	Editor,
-	EventRef,
 	MarkdownView,
-	Modal,
-	Notice,
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	TAbstractFile,
+	TFile,
 } from "obsidian";
 import "@total-typescript/ts-reset";
 import "@total-typescript/ts-reset/dom";
 import { MySettingManager } from "@/SettingManager";
 
-// Remember to rename these classes and interfaces!
+const isMarkdownFile = (file: TAbstractFile | null) =>
+	file instanceof TFile && file.extension === "md";
 
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: "default",
-};
-
-export default class MyPlugin extends Plugin {
+export default class CustomSavePlugin extends Plugin {
 	settingManager: MySettingManager;
-	private eventRefs: EventRef[] = [];
 
 	async onload() {
 		// initialize the setting manager
@@ -34,104 +25,58 @@ export default class MyPlugin extends Plugin {
 		// load the setting using setting manager
 		await this.settingManager.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon(
-			"dice",
-			"Sample Plugin",
-			(evt: MouseEvent) => {
-				// Called when the user clicks the icon.
-				new Notice("This is a notice!");
-			}
-		);
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass("my-plugin-ribbon-class");
-
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText("Status Bar Text");
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: "open-sample-modal-simple",
-			name: "Open sample modal (simple)",
-			callback: () => {
-				new SampleModal(this.app).open();
-			},
-		});
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
-			id: "sample-editor-command",
-			name: "Sample editor command",
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection("Sample Editor Command");
-			},
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: "open-sample-modal-complex",
-			name: "Open sample modal (complex)",
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView =
-					this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			},
+			id: "save",
+			name: "Save file",
+			hotkeys: [
+				{
+					modifiers: ["Mod"],
+					key: "s",
+				},
+			],
+			editorCheckCallback: this.runSaveCommand.bind(this),
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-			console.log("click", evt);
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(
-			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
-		);
+		this.addSettingTab(new CustomSaveSettingTab(this.app, this));
 	}
 
-	onunload() {
-		super.onunload();
-		// unload all event ref
-		for (const eventRef of this.eventRefs) {
-			this.app.workspace.offref(eventRef);
+	runSaveCommand = async (
+		checking: boolean,
+		editor: Editor,
+		ctx: MarkdownView
+	) => {
+		if (!ctx.file) return;
+		if (checking) {
+			return isMarkdownFile(ctx.file);
 		}
-	}
+		// for each command id in setting, run the command
+		for (const commandId of this.settingManager.getSettings().commandIds) {
+			const command = this.app.commands.findCommand(commandId);
+			if (!command) {
+				console.warn(`custom save :command ${commandId} not found`);
+				continue;
+			}
+			if (command.editorCheckCallback) {
+				command.editorCheckCallback(checking, editor, ctx);
+				continue;
+			}
+			if (command.editorCallback) {
+				command.editorCallback(editor, ctx);
+				continue;
+			}
+		}
+
+		// @ts-ignore
+		this.app.workspace.getActiveFileView()?.save();
+	};
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
+class CustomSaveSettingTab extends PluginSettingTab {
+	plugin: CustomSavePlugin;
+	settingItemMap = new Map<string, Setting>();
 
-	onOpen() {
-		const { contentEl } = this;
-		contentEl.setText("Woah!");
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: CustomSavePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -141,18 +86,100 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
+		// get the setting using setting manager
+		const setting = this.plugin.settingManager.getSettings();
+
+		let currentValue = "";
+
 		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It's a secret")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settingManager.getSettings().test)
-					.onChange(async (value) => {
+			.setName("Add command")
+			.addDropdown((dropdown) => {
+				dropdown.addOptions(
+					this.plugin.app.commands
+						.listCommands()
+						// filter out the commands that are already in the setting
+						.filter(
+							(command) =>
+								!setting.commandIds.includes(command.id) &&
+								(command.editorCallback ||
+									command.editorCheckCallback)
+						)
+
+						.map((command) => {
+							return {
+								label: command.name,
+								value: command.id,
+							};
+						})
+						.reduce(
+							(acc, cur) => {
+								acc[cur.value] = cur.label;
+								return acc;
+							},
+							{
+								"": "",
+							} as Record<string, string>
+						)
+				);
+				dropdown.onChange(async (value) => {
+					currentValue = value;
+				});
+			})
+			.addButton((button) => {
+				button.setButtonText("Add").onClick(() => {
+					if (!currentValue) return;
+					this.plugin.settingManager.updateSettings((setting) => {
+						setting.value.commandIds.push(currentValue);
+					});
+					// do it again
+					containerEl.empty();
+					this.display();
+					// // create an setting item for the new command
+					// const setting = new Setting(containerEl)
+					// 	.setName(currentValue)
+					// 	.addButton((button) => {
+					// 		button.setButtonText("Remove").onClick(() => {
+					// 			this.plugin.settingManager.updateSettings(
+					// 				(setting) => {
+					// 					setting.value.commandIds =
+					// 						setting.value.commandIds.filter(
+					// 							(id) => id !== currentValue
+					// 						);
+					// 				}
+					// 			);
+					// 		});
+					// 	});
+					// this.settingItemMap.set(currentValue, setting);
+				});
+			});
+
+		// for each setting
+		setting.commandIds.forEach((commandId) => {
+			// try to get the command
+			const command = this.plugin.app.commands.findCommand(commandId);
+			const setting = new Setting(containerEl)
+				.setName(`${commandId} ${!command ? "(not found)" : ""}`)
+				.addButton((button) => {
+					button.setButtonText("Remove").onClick(() => {
 						this.plugin.settingManager.updateSettings((setting) => {
-							setting.value.test = value;
+							setting.value.commandIds =
+								setting.value.commandIds.filter(
+									(id) => id !== commandId
+								);
 						});
-					})
-			);
+
+						// get the item from the map
+						// const item = this.settingItemMap.get(commandId);
+						// item?.controlEl.remove();
+
+						// do it again
+						containerEl.empty();
+						this.display();
+					});
+				});
+
+			if (!command) setting.nameEl.addClass("custom-save-error");
+			this.settingItemMap.set(commandId, setting);
+		});
 	}
 }

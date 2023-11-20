@@ -1,3 +1,5 @@
+// copied from https://github.com/Fevol/obsidian-typings/blob/e1ff0b68a2d4e6d6ff42b23b5eb18f1e30a4054c
+
 import {
 	App,
 	CachedMetadata,
@@ -3404,9 +3406,7 @@ declare module "obsidian" {
 		/**
 		 * Get a clickable link - if it exists - at specified position
 		 */
-		getClickableTokenAt: (
-			pos: EditorPosition
-		) => {
+		getClickableTokenAt: (pos: EditorPosition) => {
 			start: EditorPosition;
 			end: EditorPosition;
 			text: string;
