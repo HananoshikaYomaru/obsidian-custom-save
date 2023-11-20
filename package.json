@@ -1,6 +1,6 @@
 {
   "name": "obsidian-custom-save",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Add custom save actions to Obsidian",
   "main": "main.js",
   "scripts": {
