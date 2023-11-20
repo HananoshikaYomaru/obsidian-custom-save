@@ -7,6 +7,12 @@ This plugin created a custom save command that allow you add different callback 
 > [!NOTE]
 > This plugin is so simple that it probably doesn't need any documentation
 
+## Usage
+
+1. open hot key manager, change your save hot key to the save command of `Custom save`
+2. then open setting tab of Custom Save, and add other callback
+3. there you go 🎉
+
 ## Give Thanks
 
 If you are enjoying this plugin then please support my work and enthusiasm by sponsoring me on Github or buying me a coffee on <https://www.buymeacoffee.com/yomaru>.
