@@ -102,7 +102,8 @@ class CustomSaveSettingTab extends PluginSettingTab {
 							(command) =>
 								!setting.commandIds.includes(command.id) &&
 								(command.editorCallback ||
-									command.editorCheckCallback)
+									command.editorCheckCallback) &&
+								command.id !== "custom-save:save"
 						)
 
 						.map((command) => {
