@@ -157,8 +157,14 @@ class CustomSaveSettingTab extends PluginSettingTab {
 		setting.commandIds.forEach((commandId) => {
 			// try to get the command
 			const command = this.plugin.app.commands.findCommand(commandId);
+
 			const setting = new Setting(containerEl)
-				.setName(`${commandId} ${!command ? "(not found)" : ""}`)
+				.setName(
+					`${command?.name ?? commandId} ${
+						!command ? "(not found)" : ""
+					}`
+				)
+				.setDesc(command?.id ?? "")
 				.addButton((button) => {
 					button.setButtonText("Remove").onClick(() => {
 						this.plugin.settingManager.updateSettings((setting) => {
