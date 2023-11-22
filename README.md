@@ -2,6 +2,8 @@
 
 This plugin created a custom save command that allow you add different callback to this save command.
 
+<img width="798" alt="CleanShot 2023-11-21 at 07 50 03@2x" src="https://github.com/HananoshikaYomaru/obsidian-custom-save/assets/43137033/9fdd0630-db8f-4052-b688-71d53004bd00">
+
 ✅ Powerful, dead simple
 
 > [!NOTE]
