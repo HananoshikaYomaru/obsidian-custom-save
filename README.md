@@ -6,6 +6,8 @@ This plugin created a custom save command that allow you add different callback 
 
 ✅ Powerful, dead simple
 
+Demo: https://youtu.be/u761OLGAI8M?si=fHZHh22XsJcUExfA
+
 > [!NOTE]
 > This plugin is so simple that it probably doesn't need any documentation
 
@@ -14,6 +16,25 @@ This plugin created a custom save command that allow you add different callback 
 1. open hot key manager, change your save hot key to the save command of `Custom save`
 2. then open setting tab of Custom Save, and add other callback
 3. there you go 🎉
+
+## Installation
+
+### Through community plugin store
+
+Waiting for obsidian team approval: https://github.com/obsidianmd/obsidian-releases/pull/2681
+
+### Through BRAT
+
+1. install the BRAT plugin
+2. go to the plugin option, add beta plugin, copy and paste the link of this repo.
+3. the plugin will automatically appear in the list of installed community plugins, enabled this plugin
+
+### Manual installation
+
+1. cd to `.obsidian/plugins`
+2. git clone this repo
+3. `cd obsidian-custom-save && bun install && bun run build`
+4. there you go 🎉
 
 ## Give Thanks
 
