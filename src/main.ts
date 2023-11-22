@@ -53,17 +53,22 @@ export default class CustomSavePlugin extends Plugin {
 		// for each command id in setting, run the command
 		for (const commandId of this.settingManager.getSettings().commandIds) {
 			const command = this.app.commands.findCommand(commandId);
-			if (!command) {
-				console.warn(`custom save :command ${commandId} not found`);
-				continue;
-			}
-			if (command.editorCheckCallback) {
-				command.editorCheckCallback(checking, editor, ctx);
-				continue;
-			}
-			if (command.editorCallback) {
-				command.editorCallback(editor, ctx);
-				continue;
+			try {
+				if (!command) {
+					throw new Error(
+						`custom save :command ${commandId} not found`
+					);
+				}
+				if (command.editorCheckCallback) {
+					command.editorCheckCallback(checking, editor, ctx);
+					continue;
+				}
+				if (command.editorCallback) {
+					command.editorCallback(editor, ctx);
+					continue;
+				}
+			} catch (e) {
+				console.error(e.message);
 			}
 		}
 
