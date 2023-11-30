@@ -1,7 +1,7 @@
 {
   "name": "obsidian-custom-save",
-  "version": "1.0.5",
-  "description": "Add custom save actions to Obsidian",
+  "version": "1.0.6",
+  "description": "An obsidian plugin to run any commands when you save a file in the editor",
   "main": "main.js",
   "scripts": {
     "dev": "bun esbuild.config.mjs",

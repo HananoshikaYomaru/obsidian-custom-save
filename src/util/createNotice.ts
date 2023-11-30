@@ -1,6 +1,19 @@
 import { Notice } from "obsidian";
 
 export const createNotice = (
-	message: string | DocumentFragment,
+	message: string,
 	duration?: number | undefined
-): Notice => new Notice(`3D graph: ${message}`, duration);
+): Notice => new Notice(`Custom Save: ${message}`, duration);
+
+export const createNoticeWithColor = (
+	message: string,
+	color: string,
+	duration?: number | undefined
+): Notice => {
+	const fragment = document.createDocumentFragment();
+	fragment.createSpan({
+		text: `Custom Save: ${message}`,
+		attr: { style: `color: ${color}` },
+	});
+	return new Notice(fragment, duration);
+};

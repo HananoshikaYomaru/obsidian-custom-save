@@ -11,6 +11,7 @@ import {
 import "@total-typescript/ts-reset";
 import "@total-typescript/ts-reset/dom";
 import { MySettingManager } from "@/SettingManager";
+import { createNoticeWithColor } from "@/util/createNotice";
 
 const isMarkdownFile = (file: TAbstractFile | null) =>
 	file instanceof TFile && file.extension === "md";
@@ -37,6 +38,20 @@ export default class CustomSavePlugin extends Plugin {
 			],
 			editorCheckCallback: this.runSaveCommand.bind(this),
 		});
+
+		const defaultSaveCommandHotKey =
+			this.app.commands.findCommand("editor:save-file")?.hotkeys;
+
+		if (
+			defaultSaveCommandHotKey &&
+			defaultSaveCommandHotKey[0]?.modifiers[0] === "Mod" &&
+			defaultSaveCommandHotKey[0]?.key === "S"
+		) {
+			createNoticeWithColor(
+				"The hot key for the default save command should be removed!",
+				"red"
+			);
+		}
 
 		this.addSettingTab(new CustomSaveSettingTab(this.app, this));
 	}
