@@ -11,7 +11,6 @@ import {
 import "@total-typescript/ts-reset";
 import "@total-typescript/ts-reset/dom";
 import { MySettingManager } from "@/SettingManager";
-import { createNoticeWithColor } from "@/util/createNotice";
 
 const isMarkdownFile = (file: TAbstractFile | null) =>
 	file instanceof TFile && file.extension === "md";
