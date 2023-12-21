@@ -52,6 +52,10 @@ export default class CustomSavePlugin extends Plugin {
 		if (checking) {
 			return isMarkdownFile(ctx.file);
 		}
+
+		// @ts-ignore
+		await this.app.workspace.getActiveFileView()?.save();
+
 		// for each command id in setting, run the command
 		for (const commandId of this.settingManager.getSettings().commandIds) {
 			const command = this.app.commands.findCommand(commandId);
@@ -75,7 +79,7 @@ export default class CustomSavePlugin extends Plugin {
 		}
 
 		// @ts-ignore
-		this.app.workspace.getActiveFileView()?.save();
+		await this.app.workspace.getActiveFileView()?.save();
 	};
 }
 
